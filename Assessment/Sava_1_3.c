@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdbool.h> /* included to handle bool type values*/
 
 /* Struct to represent the single node of the linked list*/
 typedef struct Node {
@@ -44,12 +44,14 @@ void makeEmpty(Deque* pDeque); /* clears the contents of the deque*/
 int main(){
 
     /* Local vars */
-    Deque* pDeque = createDeque();
+    Deque* pDeque = createDeque(); 
     int choice, data; 
     bool run = true;
 
+    /* Loop untile user choice is 7 */
     while (run)
     {
+        /* Print application menù */
         printf("\nEnter your choice: \n"
                "[1] push    : Insert item x on the front end of the deque\n"
                "[2] pop     : Remove the front item from the deque\n"
@@ -59,13 +61,14 @@ int main(){
                "[6] empty   : Clears the contents of the deque\n"
                "[7] exit    : Exit the Deque program\n"
         );
-
+        /* Ask user the choice from the menù */
         printf("\nEnter your choice: ");
         scanf("%d", &choice);
-
+        /* Switch to handle all the cases*/
         switch (choice)
         {
         case 1:
+            /* Ask user to input  data */
             printf("Enter value to push : ");
             scanf("%d", &data);
             push(pDeque,data);
@@ -77,6 +80,7 @@ int main(){
             break;  
         
         case 3:
+            /* Ask user to input  data */
             printf("Enter the value to inject: ");
             scanf("%d", &data); 
             inject(pDeque, data); 
@@ -96,26 +100,27 @@ int main(){
             break; 
 
         case 7: 
+            /* Free memory of the deque when user wants to exit*/
             makeEmpty(pDeque); 
             printf("--- Exit the program ---\n");
-            run = false;
+            run = false; /* stop the loop*/
             break; 
 
         default:
+            /* Default case to handle invalud choice from user*/
             printf("Invalid choice \n"); 
             break;
-        }
-        
+        }  
     }
-    
-
-
-
-
     return 0; 
 }
 
-
+/*
+* Function name     :   createNode
+* Arguments         :   data        = Integer value, data of structure Node
+* Return value/s    :   newNode     = Pointer to the allocated memory for Node
+* Remarks           :   Create a new Node*, check the correct memory allocation and assign to it data, prev node and nex node.  
+*/
 Node* createNode(int data){
     Node* newNode = malloc(sizeof(Node));
     if (newNode == NULL)
@@ -130,6 +135,14 @@ Node* createNode(int data){
     return newNode; 
 }
 
+/*
+* Function name     :   createDeque
+* Arguments         :   ---
+* Return value/s    :   newDeque     = Pointer to the allocated memory for deque
+* Remarks           :   Create a new Deque ( double end-ended queue) and check the correct
+*                       memory allocation. 
+*                       Both pointers for front-rear are initializated to NULL, so the deque starts empty. 
+*/
 Deque* createDeque(){
     Deque* newDeque = malloc(sizeof(Deque));
     if (newDeque == NULL)
@@ -142,23 +155,39 @@ Deque* createDeque(){
     return newDeque; 
 }
 
-/* Insert item x on the front end of the deque*/
+/*
+* Function name     :   push
+* Arguments         :   pDeque       = Pointer to deque structure
+*                   :   data         = Integer value for the new  Node
+* Return value/s    :   ---
+* Remarks           :   Create a new Node with the given data, check if the deque front is NULL and set 
+*                       both front and rear to newNode created. 
+*                       If the deque is not empty, adjust pointers to insert newNode
+*/
 void push(Deque* pDeque, int data){
 
     Node* newNode = createNode(data);
 
-    if (pDeque->front == NULL) {
+    if (pDeque->front == NULL) { /* Empty Deque condition*/
+        /* Set both front and reas as newNode*/
         pDeque->front = pDeque->rear = newNode;
-    } else {
-        newNode->next = pDeque->front;
-        pDeque->front->prev = newNode;
-        pDeque->front = newNode;
+    } else { /* Deque not empty*/
+        newNode->next = pDeque->front; /* Update next of NewNode*/
+        pDeque->front->prev = newNode; /* Update the current front node prev to newNode*/
+        pDeque->front = newNode; /* Update Deque front to point newNode*/
     }
-
+    /* Notify */
     printf("Push action completed! \n");
 }
 
-/* Remove the front item from the deque and return it*/
+/*
+* Function name     :   pop
+* Arguments         :   pDeque       = Pointer to deque structure
+* Return value/s    :   data         = removed data 
+* Remarks           :   First check the front of the Deque, if empty notify and return 1
+*                       Use a tempNode to extract the data, updates the new front and check if becomes 
+*                       empty after removal.
+*/
 int pop(Deque* pDeque){
     if (pDeque->front == NULL)
     {
@@ -166,16 +195,21 @@ int pop(Deque* pDeque){
         return(1);
     }
 
-    Node* tempNode = pDeque->front;
+    /* Temp to store the data*/
+    Node* tempNode = pDeque->front; 
     int data = tempNode->data;
-
+    
+    /* Move front of deque to the next node*/
     pDeque->front = pDeque->front->next;
 
+    /* Check if becomes empty*/
     if (pDeque->front == NULL)
     {
+        /* If empty set rear as NULL*/
         pDeque->rear = NULL; 
     }
     else{
+        /* Otherwise update the new front prev to NULL*/
         pDeque->front->prev = NULL;
     }
     
@@ -184,41 +218,62 @@ int pop(Deque* pDeque){
     return data; 
 }
 
-/* Insert item x on the rear end of the deque*/
+/*
+* Function name     :   inject
+* Arguments         :   pDeque       = Pointer to deque structure
+*                   :   data         = Integer value for the new  Node
+* Return value/s    :   ---
+* Remarks           :   Create a new Node with the given data, check if the deque rear is NULL and set 
+*                       both front and rear to newNode created. 
+*                       If the deque is not empty, adjust pointers to insert newNode
+*/
 void inject(Deque* pDeque, int data){
     Node* newNode = createNode(data);
 
-    if (pDeque->rear == NULL)
-    {
-        pDeque->rear = pDeque->rear = newNode;
+    if (pDeque->rear == NULL)/* Empty Deque condition*/
+    {  /* Set both front and reas as newNode*/
+        pDeque->front = pDeque->rear = newNode;
     }
-    else
+    else/* Deque not empty*/
     {
-        newNode->prev = pDeque->rear; 
-        pDeque->rear->next = newNode; 
-        pDeque->rear = newNode; 
+        newNode->prev = pDeque->rear; /* Update prev of NewNode*/
+        pDeque->rear->next = newNode; /* Update the current rear node next to newNode*/
+        pDeque->rear = newNode; /* Update Deque rear to point newNode*/
     }
+    /* Notify */
     printf("Inject action completed! \n");
 }
 
-/* Remove the rear item from the deque and return it*/
+/*
+* Function name     :   inject
+* Arguments         :   pDeque       = Pointer to deque structure
+* Return value/s    :   data         = removed data 
+* Remarks           :   First check the rear of the Deque, if empty notify and return 1
+*                       Use a tempNode to extract the data, updates the new front and check if becomes 
+*                       empty after removal.
+*/
 int eject(Deque* pDeque){
     if(pDeque->rear == NULL){
         printf("Deque is Empty! First insert an element \n");
         return(1);
     }
 
+    /* Temp to store the data*/
     Node* tempNode = pDeque->rear; 
     int data = tempNode->data; 
 
+    /* Move rear of deque to prev node*/
     pDeque->rear = pDeque->rear->prev; 
 
+    /* Check if becomes empty*/
     if (pDeque->rear == NULL)
     {
+        /* If empty set front as NULL*/
         pDeque->front = NULL; 
     }
     else
     {
+        /* Otherwise update the new rear next to NULL*/
         pDeque->rear->next = NULL;
     }
     
@@ -227,6 +282,12 @@ int eject(Deque* pDeque){
         return data; 
 } 
 
+/*
+* Function name     :   printDeque
+* Arguments         :   pDeque       = Pointer to deque structure
+* Return value/s    :   ---
+* Remarks           :   Print deque from front to rear, loop as long as there nodes in the deque
+*/
 void printDeque(Deque* pDeque){
 
     if (pDeque->front == NULL)
@@ -240,21 +301,31 @@ void printDeque(Deque* pDeque){
     printf("Printing Deque from front to rear\n");
     while (currentNode != NULL)
     {
-        printf("%d <-> ", currentNode->data);
+        printf("%d ", currentNode->data);
         currentNode = currentNode->next; 
     }
     printf("\n");
 }
 
+/*
+* Function name     :   makeEmpty
+* Arguments         :   pDeque       = Pointer to deque structure
+* Return value/s    :   ---
+* Remarks           :   Free memory and empty the deque, loop continues as long as there are nodes in 
+*                       the deque. Store current front in a tempNode and move the front to next node. 
+*                       at each iteration of the loop free memory of tempNode 
+*/
 void makeEmpty(Deque* pDeque){
     while (pDeque->front != NULL)
     {
         Node* tempNode = pDeque->front; 
-        /* Shift front*/
+        /* Move front to next node */
         pDeque->front = pDeque->front->next; 
-        /* Free memory*/
+        /* Free memory of the removed node*/
         free(tempNode);
     }
+    /* Update rear to null*/
     pDeque->rear = NULL; 
+    /* Notify*/
     printf("Deque cleared !\n"); 
 }
