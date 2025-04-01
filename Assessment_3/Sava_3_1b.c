@@ -68,7 +68,19 @@ int main(){
     return 0; 
 }
 
-
+/* 
+* Function name    : shellSort
+* Arguments        : array[]                = (array of integers to be sorted), 
+*                    size                   = (integer representing the size of the array), 
+*                    increments[]           = (array of gap values for Shellsort), 
+*                    numIncrements          = (integer representing the number of increments), 
+*                    countingSwap           = (pointer to an integer to track the number of swaps)
+* Return value/s   : None                   = (void function)
+* Remarks          : Implements Shellsort using the provided increment sequence {1, 3, 7}
+*                    The function iterates over each gap value, performing insertion sort for each.
+*                    The number of swaps made during sorting is tracked via countingSwap.
+*                    The array state is printed after each increment step.
+*/
 void shellSort(ElementType array[], ElementType size, ElementType increments[], 
     ElementType numIncrements, int *countingSwap ){
         /* First loop : to track the increment sequence {0...N} */
@@ -99,6 +111,14 @@ void shellSort(ElementType array[], ElementType size, ElementType increments[],
         }
     } 
 
+/* 
+* Function name    : printArray
+* Arguments        : array[]            = (array of integers to be printed), 
+*                    size               = (integer representing the size of the array)
+* Return value/s   : None               = (void function)
+* Remarks          : Prints the elements of the array in a single line separated by spaces.
+*                    Used to display the array after each sorting step.
+*/
 void printArray(ElementType array[], ElementType size){
 
     for (int i = 0; i < size; i++)
@@ -108,6 +128,15 @@ void printArray(ElementType array[], ElementType size){
     printf("\n");
 }
 
+/* 
+* Function name    : countInversions
+* Arguments        : array[]            = (array of integers), 
+                     size               = (integer representing the size of the array)
+* Return value/s   : ElementType        = (integer representing the number of inversions in the array)
+* Remarks          : Counts the number of inversions in the input array.
+*                    An inversion is a pair (i, j) where i < j and array[i] > array[j].
+*                    Returns the total number of such inversions.
+*/
 int countInversions(ElementType array[], ElementType size){
     int numberInversions = 0; 
     for (int p = 0; p < size - 1; p++)

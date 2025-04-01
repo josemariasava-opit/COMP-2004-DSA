@@ -50,45 +50,33 @@ int main(){
     /* Call countInversions() and store value */
     numberOfInversion = countInversions(array,sizeArray); 
 
-    printf("Number of inversions --> %d", numberOfInversion); 
-
-    printf("\nSorted Array  : \n"); 
-    for (int i = 0; i < sizeArray; i++)
-    {
-        printf("%d ", array[i]); 
-    }
-    printf("\n");
-    
+    printf("Number of inversions --> %d", numberOfInversion);     
 
     /* Free the memory allocated for the array */
     free(array);     
     return 0; 
 }
 
-
+/* 
+* Function name    : countInversions
+* Arguments        : array[]            = (array of integers), 
+                     size               = (integer representing the size of the array)
+* Return value/s   : ElementType        = (integer representing the number of inversions in the array)
+* Remarks          : Counts the number of inversions in the input array.
+*                    An inversion is a pair (i, j) where i < j and array[i] > array[j].
+*                    Returns the total number of such inversions.
+*/
 int countInversions(ElementType array[], ElementType size){
-
-    /* return var */
-    int inversionsNumber = 0; 
-
-    /* indexes of for loop*/
-    ElementType j,p; 
-    ElementType key; 
-
-    for ( p = 1; p < size; p++)
+    int numberInversions = 0; 
+    for (int p = 0; p < size - 1; p++)
     {
-        /* temp is our key value*/
-        key = array[p]; 
-        for (j  = p; j> 0 && array[j-1]> key; j--)
+        for (int j = p+1 ; j < size; j++)
         {
-            array[j] = array[j-1]; 
-            printf("Inversion found: [%d, %d]\n", array[j], key); 
-            inversionsNumber ++; 
-            /* End of j index second loop */
+            if (array[p] > array[j])
+            {
+                numberInversions ++; 
+            }
         }
-        array[j] = key; 
-        /* End of p index second loop */
     }
-    /* Return value */
-    return inversionsNumber; 
+    return numberInversions;    
 }
