@@ -54,14 +54,14 @@ int main(){
     }
 
     /* Allocate memory for the array of points */
-    Point *pPointArray = malloc(sizeArray*sizeof(Point)); 
+    Point *pPointArray = malloc(sizeArray * sizeof(Point)); 
     if (!pPointArray)
     {   /* Notify */
         perror("Memory allocation failed for the array of points \n");
         return 1;
     }
     
-    printf("Enter the data points in format (x, y): \n");
+    printf("Enter the data points in format (x, y): ");
     for (int i = 0; i < sizeArray; i++)
     {
         do
@@ -79,56 +79,67 @@ int main(){
     /* end of for loop */
     }
     
-    printf("Collinear points found: \n"); 
+    printf("\nCollinear points found: \n"); 
     collinearFound = false; 
 
     /* iterate through each point as a reference point*/
     for (int i = 0; i < sizeArray; i++)
     {
         Point pointReference = pPointArray[i]; 
-        Slope *pSlopes = malloc((sizeArray-1)*sizeof(Slope)); 
+        /* Allocate enough space for all points (maximum is sizeArray) */
+        Slope *pSlopes = malloc(sizeArray * sizeof(Slope)); 
+        if (!pSlopes) {
+            perror("Memory allocation failed for slopes array\n");
+            free(pPointArray);
+            return 1;
+        }
+        
         int slopeCount = 0; 
 
         /* Calculate slope now - from reference point to all other points */
         for (int j = 0; j < sizeArray; j++)
         {
+            // Skip the reference point itself
+            if (j == i) continue;
+            
             pSlopes[slopeCount].point = pPointArray[j]; 
             pSlopes[slopeCount].point.index = j; 
-            calculateSlope(pointReference,pPointArray[j], &pSlopes[slopeCount].slope_dy, &pSlopes[slopeCount].slope_dx);
-            slopeCount ++; 
+            calculateSlope(pointReference, pPointArray[j], &pSlopes[slopeCount].slope_dy, &pSlopes[slopeCount].slope_dx);
+            slopeCount++; 
         }
         
         /* Sort points by slope calling mergeSort() */
         if (slopeCount > 0)
         {
-            mergeSort(pSlopes,0,slopeCount-1); 
+            mergeSort(pSlopes, 0, slopeCount - 1); 
         }
 
         /* now - find groups of collinear points */
         int start = 0; 
         while (start < slopeCount)
         {
-            int end = start +1; 
-            while (end < slopeCount && pSlopes[end].slope_dx == pSlopes[start].slope_dx &&
+            int end = start + 1; 
+            while (end < slopeCount && 
+                   pSlopes[end].slope_dx == pSlopes[start].slope_dx &&
                    pSlopes[end].slope_dy == pSlopes[start].slope_dy)
             {
-                end ++; 
+                end++; 
             }
 
-            /* Check if we have 4 or more collinear points ( including reference point )*/
-            if (end - start >= 3)
+            /* Check if we have 4 or more collinear points (including reference point) */
+            if (end - start >= 3) // 3 points in slopes array + reference point = 4 points total
             {
                 int printGroup = 1; 
-            /* Check if this is the first occurrence of this line */
-                for (int k = start; k < end ; k++)
+                /* Check if this is the first occurrence of this line */
+                for (int k = start; k < end; k++)
                 {
-                    if (pSlopes[k].point.index < i )
+                    if (pSlopes[k].point.index < i)
                     {
                         printGroup = 0; 
                         break; 
                     }
                 }
-                /* Print the group if it's the firt occurence */
+                /* Print the group if it's the first occurrence */
                 if (printGroup)
                 {
                     collinearFound = true; 
@@ -150,7 +161,7 @@ int main(){
     /* Notify if no collinear points group are present */
     if (!collinearFound)
     {
-        printf("Cannot find groups of4 or more collinear points \n"); 
+        printf("Cannot find groups of 4 or more collinear points \n"); 
     }
 
     /* free memory */
@@ -192,7 +203,7 @@ int greatCommonDivisor(int a, int b){
 */
 void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx){
     
-    int dx = p2.x - p1.x; /* Horizaontal difference */
+    int dx = p2.x - p1.x; /* Horizontal difference */
     int dy = p2.y - p1.y; /* Vertical difference */ 
     /* Special case - points are the same*/
     if (dx == 0 && dy == 0)
@@ -207,12 +218,12 @@ void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx){
     */
     if (dx == 0)
     {
-        *slope_dy = 1; /* vertica line has undefined slope because dy/dx its a division by 0 */
+        *slope_dy = 1; /* vertical line has undefined slope because dy/dx its a division by 0 */
         *slope_dx = 0; 
         return;         
     }
     /* calculate greatCommonDivisor and simplify the fraction */
-    int gcdValue = greatCommonDivisor(dy,dx); 
+    int gcdValue = greatCommonDivisor(dy, dx); 
     int simple_dy = dy / gcdValue; 
     int simple_dx = dx / gcdValue; 
     /* 
@@ -227,8 +238,8 @@ void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx){
     }
 
     /* Store the slope in the output var */
-    *slope_dy = dy; 
-    *slope_dx = dx; 
+    *slope_dy = simple_dy; 
+    *slope_dx = simple_dx; 
 }
 /* 
 * Function name    : merge
@@ -241,37 +252,38 @@ void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx){
 *                    Used as a helper function for mergeSort() 
 */
 void merge(Slope *array, int left, int mid, int right){
-    int i,j,k; 
-    int n1 = mid - left +1; /* Size of left subarray */
+    int i, j, k; 
+    int n1 = mid - left + 1; /* Size of left subarray */
     int n2 = right - mid; /* Size of right subarray */
 
     /* Create temp arrays and allocate memory */
-    Slope *lSubArray = malloc(n1*sizeof(Slope)); 
+    Slope *lSubArray = malloc(n1 * sizeof(Slope)); 
     if (!lSubArray)
     {
         perror("Cannot allocate memory for subArray left \n"); 
         return; 
     }
-    Slope *rSubArray = malloc(n2*sizeof(Slope)); 
+    Slope *rSubArray = malloc(n2 * sizeof(Slope)); 
     if (!rSubArray)
     {
-        perror("Cannot allocate memory for subArray right \n"); 
+        perror("Cannot allocate memory for subArray right \n");
+        free(lSubArray); 
         return; 
     }
     
     /* Copy the point and slope into subarrays */
-    for ( i = 0; i < n1; i++)
+    for (i = 0; i < n1; i++)
     {
-        lSubArray[i] = array[left+i]; 
+        lSubArray[i] = array[left + i]; 
     }
-    for (j = 0; j < n2; i++)
+    for (j = 0; j < n2; j++) // Fixed: was incorrectly incrementing i instead of j
     {
-        rSubArray[i] = array[mid+1+i]; 
+        rSubArray[j] = array[mid + 1 + j]; // Fixed: was using i instead of j
     }
     
     /* Merge back into original array */
     i = 0; /* index for lSubArray */
-    j = 0; /* index fir rSubArray */
+    j = 0; /* index for rSubArray */
     k = left; /* index for merged array */
 
     while (i < n1 && j < n2)
@@ -281,13 +293,14 @@ void merge(Slope *array, int left, int mid, int right){
         * Sorting is based on slope (dx, dy) and, if slopes are equal, original index.
         */
         if ((lSubArray[i].slope_dx < rSubArray[j].slope_dx) || 
-            (lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy<rSubArray[j].slope_dy) ||
-            (lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy == rSubArray[j].slope_dy) && 
-            (lSubArray[i].point.index <= rSubArray[j].point.index))
+            (lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy < rSubArray[j].slope_dy) ||
+            ((lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy == rSubArray[j].slope_dy) && 
+             (lSubArray[i].point.index < rSubArray[j].point.index))) // Fixed: missing parenthesis
         {
             array[k] = lSubArray[i]; 
             i++; 
-        }else
+        }
+        else
         {
             array[k] = rSubArray[j]; 
             j++; 
@@ -306,7 +319,7 @@ void merge(Slope *array, int left, int mid, int right){
         k++; 
     }
     /* copy remaining element from right sub array */
-    while (j <n2)
+    while (j < n2) // Fixed: was j <n2 (space missing)
     {
         array[k] = rSubArray[j]; 
         j++; 
@@ -347,6 +360,5 @@ void mergeSort(Slope *array, int left, int right) {
 * Remarks          : Prints a single point in the format (x, y).
 */
 void printPoint(Point p){
-
-    printf("(%d, %d)", p.x,p.y); 
+    printf("(%d, %d)", p.x, p.y); 
 }
