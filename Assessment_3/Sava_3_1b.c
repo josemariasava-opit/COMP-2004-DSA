@@ -1,4 +1,5 @@
 /* 
+* SAVA - 1B 
 * Show the result of running Shellsort on the following
 * input with the increment sequence {1, 3, 7}. At each step, you must show the array and record
 * the number of swaps, as shown on the lecture slides.
@@ -27,7 +28,7 @@ int main(){
     printf("Enter the number of element of the array : "); 
     while (scanf("%d", &sizeArray) != 1 || sizeArray < 1) {
         printf("Invalid input. Enter a positive integer: ");
-        while (getchar() != '\n'); /* Clean input buffer */
+        while (getchar() != '\n'); /* Clear input buffer */
     }
 
     /* Allocate memory for the array */
@@ -70,10 +71,10 @@ int main(){
 
 /* 
 * Function name    : shellSort
-* Arguments        : array[]                = (array of integers to be sorted), 
-*                    size                   = (integer representing the size of the array), 
-*                    increments[]           = (array of gap values for Shellsort), 
-*                    numIncrements          = (integer representing the number of increments), 
+* Arguments        : array[]                = (array of integers to be sorted)
+*                    size                   = (integer representing the size of the array)
+*                    increments[]           = (array of gap values for Shellsort)
+*                    numIncrements          = (integer representing the number of increments)
 *                    countingSwap           = (pointer to an integer to track the number of swaps)
 * Return value/s   : None                   = (void function)
 * Remarks          : Implements Shellsort using the provided increment sequence {1, 3, 7}
@@ -113,7 +114,7 @@ void shellSort(ElementType array[], ElementType size, ElementType increments[],
 
 /* 
 * Function name    : printArray
-* Arguments        : array[]            = (array of integers to be printed), 
+* Arguments        : array[]            = (array of integers)
 *                    size               = (integer representing the size of the array)
 * Return value/s   : None               = (void function)
 * Remarks          : Prints the elements of the array in a single line separated by spaces.
