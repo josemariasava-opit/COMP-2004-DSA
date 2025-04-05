@@ -30,15 +30,26 @@ int main() {
     
     /* Maps sorted values back to original index and stores in originalArray[]*/
     int usedArray[size]; /* Helps to avoids duplicate mapping */
+    /* Memset() initialize the usedArray with zeros, setting each element at zero 
+    ensure that no elements are considered "used"*/
     memset(usedArray, 0, sizeof(usedArray));
+    /* Loop through sorted values array */
     for (int i = 0; i < size; i++) {
+        /* Search in originalArray */
         for (int j = 0; j < size; j++) {
+            /* 
+            * If sortedValues[i] matches originalArray[j] AND 
+            * originalArray[j] hasn't been used yet,
+            * record the original index (j) in indexArray[i].
+            */
             if (sortedValues[i] == originalArray[j] && !usedArray[j]) {
-                indexArray[i] = j;
-                usedArray[j] = 1;
-                break;
+                indexArray[i] = j;/* store original index */
+                usedArray[j] = 1; /* mark as used */
+                break; /* Move to next item in sortedArray */
             }
+            /* end of second loop */
         }
+        /* end of first loop */
     }
     
     /* Ask user to input the target sum -- value k */
@@ -79,7 +90,7 @@ int main() {
 *                    n          = (integer value) 
 
 /* 
-* Function name    : subsetsFinder
+* Function name    : subsetsFinder 
 * Arguments        : sortedValues[]    = (integer array) Sorted input values
 *                    indexArray[]      = (integer array) Original positions of sorted values
 *                    n                 = (integer) Size of array
@@ -92,7 +103,7 @@ int main() {
 * Return value/s   : void
 * Remarks          : Recursive function using backtracking to find all subsets that sum to k value.
 *                    Skips zeros when K ≠ 0 to avoid trivial solutions. Maintains original indices
-*                    from unsorted array for the  output. 
+*                    from unsorted array for the output to user 
 */
 void subsetsFinder(int sortedValues[], int indexArray[], int n, int k, int index, 
                     int subset[], int subsetSize, int currentSum, bool *found) {

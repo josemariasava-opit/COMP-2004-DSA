@@ -34,12 +34,18 @@ typedef struct {
     int slope_dx;
 } Slope;
 
-/* Function prototype */
-int greatCommonDivisor(int x, int y); 
-void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx); 
-void merge(Slope *array, int left, int mid, int right); 
-void mergeSort(Slope * array, int left, int right); 
-void printPoint(Point p); 
+/* Function prototypes */
+int greatCommonDivisor(int x, int y);
+void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx);
+void printPoint(Point p);
+
+/* Import functions from sort.c */
+void Merge(Slope A[], Slope TmpArray[], int Lpos, int Rpos, int RightEnd);
+void MSort(Slope A[], Slope TmpArray[], int Left, int Right);
+void MergeSort(Slope A[], int N);
+
+/* Compare function for Slopes to be used with sorting algorithms */
+int compareSlopes(const Slope *a, const Slope *b);
 
 int main(){
     /* local var */
@@ -99,7 +105,7 @@ int main(){
         /* Calculate slope now - from reference point to all other points */
         for (int j = 0; j < sizeArray; j++)
         {
-            // Skip the reference point itself
+            /* Skip the reference point itself */
             if (j == i) continue;
             
             pSlopes[slopeCount].point = pPointArray[j]; 
@@ -108,10 +114,10 @@ int main(){
             slopeCount++; 
         }
         
-        /* Sort points by slope calling mergeSort() */
+        /* Sort points by slope using MergeSort from sort.c */
         if (slopeCount > 0)
         {
-            mergeSort(pSlopes, 0, slopeCount - 1); 
+            MergeSort(pSlopes, slopeCount);
         }
 
         /* now - find groups of collinear points */
@@ -127,7 +133,7 @@ int main(){
             }
 
             /* Check if we have 4 or more collinear points (including reference point) */
-            if (end - start >= 3) // 3 points in slopes array + reference point = 4 points total
+            if (end - start >= 3) /* 3 points in slopes array + reference point = 4 points total */ 
             {
                 int printGroup = 1; 
                 /* Check if this is the first occurrence of this line */
@@ -168,6 +174,7 @@ int main(){
     free(pPointArray); 
     return 0; 
 }
+
 /* 
 * Function name    : greatCommonDivisor
 * Arguments        : a      = (integer value) 
@@ -241,117 +248,6 @@ void calculateSlope(Point p1, Point p2, int *slope_dy, int *slope_dx){
     *slope_dy = simple_dy; 
     *slope_dx = simple_dx; 
 }
-/* 
-* Function name    : merge
-* Arguments        : array      = (array of Slope structures)
-*                    left       = (starting index of the left subarray)
-*                    mid        = (ending index of the left subarray)
-*                    right      = (ending index of the right subarray)
-* Return value/s   : None       = (void function)
-* Remarks          : Merges two sorted subarrays into a single sorted array.
-*                    Used as a helper function for mergeSort() 
-*/
-void merge(Slope *array, int left, int mid, int right){
-    int i, j, k; 
-    int n1 = mid - left + 1; /* Size of left subarray */
-    int n2 = right - mid; /* Size of right subarray */
-
-    /* Create temp arrays and allocate memory */
-    Slope *lSubArray = malloc(n1 * sizeof(Slope)); 
-    if (!lSubArray)
-    {
-        perror("Cannot allocate memory for subArray left \n"); 
-        return; 
-    }
-    Slope *rSubArray = malloc(n2 * sizeof(Slope)); 
-    if (!rSubArray)
-    {
-        perror("Cannot allocate memory for subArray right \n");
-        free(lSubArray); 
-        return; 
-    }
-    
-    /* Copy the point and slope into subarrays */
-    for (i = 0; i < n1; i++)
-    {
-        lSubArray[i] = array[left + i]; 
-    }
-    for (j = 0; j < n2; j++) // Fixed: was incorrectly incrementing i instead of j
-    {
-        rSubArray[j] = array[mid + 1 + j]; // Fixed: was using i instead of j
-    }
-    
-    /* Merge back into original array */
-    i = 0; /* index for lSubArray */
-    j = 0; /* index for rSubArray */
-    k = left; /* index for merged array */
-
-    while (i < n1 && j < n2)
-    {
-        /* 
-        * Compare slopes 
-        * Sorting is based on slope (dx, dy) and, if slopes are equal, original index.
-        */
-        if ((lSubArray[i].slope_dx < rSubArray[j].slope_dx) || 
-            (lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy < rSubArray[j].slope_dy) ||
-            ((lSubArray[i].slope_dx == rSubArray[j].slope_dx && lSubArray[i].slope_dy == rSubArray[j].slope_dy) && 
-             (lSubArray[i].point.index < rSubArray[j].point.index))) // Fixed: missing parenthesis
-        {
-            array[k] = lSubArray[i]; 
-            i++; 
-        }
-        else
-        {
-            array[k] = rSubArray[j]; 
-            j++; 
-        }
-        k++; 
-    }
-    /* 
-    * If one subarray still has Slope elements left, they are copied back to original array 
-    * merge sort works recursively, the two subarrays being merged might have different sizes.
-    */
-    /* copy remaining element from left sub array */
-    while (i < n1)
-    {
-        array[k] = lSubArray[i]; 
-        i++; 
-        k++; 
-    }
-    /* copy remaining element from right sub array */
-    while (j < n2) // Fixed: was j <n2 (space missing)
-    {
-        array[k] = rSubArray[j]; 
-        j++; 
-        k++; 
-    }
-    
-    /* Free allocated memory after finish with sub arrays */
-    free(lSubArray); 
-    free(rSubArray); 
-}
-/* 
-* Function name    : mergeSort
-* Arguments        : array      = (array of Slope structures)
-*                    left       = (starting index of the array)
-*                    right      = (ending index of the array)
-* Return value/s   : None       = (void function)
-* Remarks          : Sorts an array of Slope structures using the merge sort algorithm.
-*                    Sorts primarily by slope, then by original index if slopes are equal.
-*/
-void mergeSort(Slope *array, int left, int right) {
-    
-    if (left < right) {
-        int mid = left + (right - left) / 2; /* find middle index */
-        
-        /* Step 1 : recursively sort the left half */
-        mergeSort(array, left, mid);
-        /* Step 2 : recursively sort the right half */
-        mergeSort(array, mid + 1, right);
-        /* Step 3 : call merge() and merge the two parts */
-        merge(array, left, mid, right);
-    }
-}
 
 /* 
 * Function name    : printPoint
@@ -361,4 +257,93 @@ void mergeSort(Slope *array, int left, int right) {
 */
 void printPoint(Point p){
     printf("(%d, %d)", p.x, p.y); 
+}
+
+/* 
+* Function name    : compareSlopes
+* Arguments        : a     = (pointer to Slope structure)
+*                    b     = (pointer to Slope structure)
+* Return value/s   : int   = (-1 if a < b, 0 if a == b, 1 if a > b)
+* Remarks          : Compare function for Slopes to be used with sorting algorithms.
+*                    Compares slopes first, then original indices if slopes are equal.
+*/
+int compareSlopes(const Slope *a, const Slope *b) {
+    if (a->slope_dx < b->slope_dx) {
+        return -1;
+    } else if (a->slope_dx > b->slope_dx) {
+        return 1;
+    } else {
+        if (a->slope_dy < b->slope_dy) {
+            return -1;
+        } else if (a->slope_dy > b->slope_dy) {
+            return 1;
+        } else {
+            if (a->point.index < b->point.index) {
+                return -1;
+            } else if (a->point.index > b->point.index) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+}
+
+/* 
+* Adapted functions from sort.c to work with Slope structures 
+*/
+
+void
+Merge(Slope A[], Slope TmpArray[], int Lpos, int Rpos, int RightEnd)
+{
+    int i, LeftEnd, NumElements, TmpPos;
+
+    LeftEnd = Rpos - 1;
+    TmpPos = Lpos;
+    NumElements = RightEnd - Lpos + 1;
+
+    /* main loop */
+    while (Lpos <= LeftEnd && Rpos <= RightEnd) {
+        if (compareSlopes(&A[Lpos], &A[Rpos]) <= 0)
+            TmpArray[TmpPos++] = A[Lpos++];
+        else
+            TmpArray[TmpPos++] = A[Rpos++];
+    }
+
+    while (Lpos <= LeftEnd)  /* Copy rest of first half */
+        TmpArray[TmpPos++] = A[Lpos++];
+    while (Rpos <= RightEnd) /* Copy rest of second half */
+        TmpArray[TmpPos++] = A[Rpos++];
+
+    /* Copy TmpArray back */
+    for (i = 0; i < NumElements; i++, RightEnd--)
+        A[RightEnd] = TmpArray[RightEnd];
+}
+
+void
+MSort(Slope A[], Slope TmpArray[], int Left, int Right)
+{
+    int Center;
+
+    if (Left < Right) {
+        Center = (Left + Right) / 2;
+        MSort(A, TmpArray, Left, Center);
+        MSort(A, TmpArray, Center + 1, Right);
+        Merge(A, TmpArray, Left, Center + 1, Right);
+    }
+}
+
+void
+MergeSort(Slope A[], int N)
+{
+    Slope *TmpArray;
+
+    TmpArray = malloc(N * sizeof(Slope));
+    if (TmpArray != NULL) {
+        MSort(A, TmpArray, 0, N - 1);
+        free(TmpArray);
+    } else {
+        printf("No space for tmp array!!!\n");
+        exit(1);
+    }
 }
